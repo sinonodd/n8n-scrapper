@@ -1,0 +1,221 @@
+{
+  "name": "My workflow 3",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Conversion Rate Optimizer",
+        "formDescription": "Your Landing Page is Leaking Sales—Fix It Now",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Landing Page Url",
+              "placeholder": "https://yuzuu.co",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "7f088d46-4e6a-47b1-83ec-b3495fadc8b6",
+      "name": "Landing Page Url",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        400,
+        160
+      ],
+      "webhookId": "0818531a-3892-49f6-af78-cde8d538b205",
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "url": "={{ $json['Landing Page Url'] }}",
+        "options": {}
+      },
+      "id": "8752bd8c-75a8-4033-ac11-abeac37fa702",
+      "name": "Scrape Website",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        600,
+        160
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an elite Conversion Rate Optimization expert who analyzes landing pages for business founders and CMOs. Your expertise lies in delivering brutally honest assessments and unconventional optimization strategies that drive measurable results.\n\nTASK:\nAnalyze the provided landing page content and generate a comprehensive CRO report with two sections: a candid roast and 10 actionable recommendations.\n\nOUTPUT REQUIREMENTS:\n\nROAST SECTION:\n- Use a friendly, conversational tone as if talking to a peer\n- Be unconventional and engaging - make it memorable and thought-provoking\n- Conduct a thorough analysis covering: value proposition clarity, messaging hierarchy, visual design, user flow, trust signals, calls-to-action, social proof, friction points, and mobile experience\n- Identify specific weaknesses with clear explanations of why they hurt conversions\n- Reference specific elements from the actual landing page\n\nRECOMMENDATIONS SECTION:\n- Provide exactly 10 CRO ideas, each with:\n  * Specific, actionable implementation details (not generic advice)\n  * Concrete examples tailored to this landing page\n  * Clear explanation of expected impact\n- Prioritize:\n  * Unconventional tactics used by top 0.1% CRO experts\n  * 2024-relevant digital marketing strategies\n  * High-impact, easy-to-implement changes\n  * Ideas that create a 'wow' effect\n- Avoid generic suggestions like 'add live chat' or 'offer free trial'\n- Connect each recommendation directly to insights from your roast\n- Instead of saying 'Rewrite your headline', provide 2-3 improved headline options with reasoning\n\nFORMATTING:\n- Output must be compatible with Google Docs (no Markdown)\n- Use plain text with line breaks and spacing for readability\n- Structure as valid JSON with two fields: fileName and report\n- Generate fileName based on the website title/brand\n\nReturn your analysis in this exact JSON structure:\n{\n  \"fileName\": \"[WebsiteName]_CRO_Roast_Report\",\n  \"report\": \"[Full report content in plain text format]\"\n}\n\nLanding page content to analyze:\n{{ $json.data }}",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "id": "04699a4d-9861-40ab-8012-d80ae9a8d04e",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        820,
+        160
+      ],
+      "typeVersion": 1.7
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-pro",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        860,
+        380
+      ],
+      "id": "fa858d78-21e9-46de-b933-0cf3526b6587",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "OYaAD6prL4Z1uUFK",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "folderId": "1jXGHEUE5kJRsjelsXV-AcCkZV28p0tzw",
+        "title": "={{ $json.output.fileName }}"
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        1180,
+        160
+      ],
+      "id": "cef32cb5-0f0a-4621-b351-cb8d28630c9f",
+      "name": "Google Docs",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "G4yzeYccjlCwieYD",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $json.id }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "insert",
+              "text": "={{ $('AI Agent').item.json.output.report }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        1400,
+        160
+      ],
+      "id": "54a43276-db65-4112-83e5-1a3369fc12b5",
+      "name": "Google Docs1",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "G4yzeYccjlCwieYD",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"fileName\": \"doc_fileName\",\n\t\"report\": \"long text report \"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        1000,
+        380
+      ],
+      "id": "12a577c3-73df-4c83-a9f5-bd706a9bfe51",
+      "name": "Structured Output Parser"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Scrape Website": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Landing Page Url": {
+      "main": [
+        [
+          {
+            "node": "Scrape Website",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Google Docs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Docs": {
+      "main": [
+        [
+          {
+            "node": "Google Docs1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b3df76d1-1bc3-465a-81d9-fe3c33fb7542",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "dc9068f679b56be17f92fa1ea221ec744d2e642f1ad32eac7e68aad67c2cb363"
+  },
+  "id": "hQhALDH7hoPWaIJf",
+  "tags": []
+}
